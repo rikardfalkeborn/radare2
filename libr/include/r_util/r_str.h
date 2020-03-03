@@ -23,11 +23,31 @@ typedef int (*RStrRangeCallback) (void *, int);
 
 static inline void r_str_rmch(char *s, char ch) {
 	for (;*s; s++) {
-		if (*s==ch) {
+		if (*s == ch) {
 			memmove (s, s + 1, strlen (s));
 		}
 	}
 }
+
+#if 1 || R_STR_FORMAT_API
+
+// TODO: hold all those vars into a struct so we dont have to mess that much
+static inline char *r_strf_(char *fmt_buf, int *fmt_z, int fmt_x, int fmt_y, const char *fmt, ...) {
+	va_list ap;
+	va_start (ap, fmt);
+	vsnprintf (fmt_buf, fmt_y, fmt, ap);
+	(*fmt_z) ++;
+	if (*fmt_z > fmt_x) {
+		*fmt_z = 0;
+	}
+	va_end (ap);
+	return fmt_buf;
+}
+
+// TODO: add assert when x or y is < 1
+#define r_strf_frame(x,y) const int fmt_x=x;const int fmt_y=y;int fmt_z=0;char fmt_buffer[x][y];
+#define r_strf(x,...) r_strf_(fmt_buffer[fmt_z], &fmt_z, fmt_x, fmt_y, x, __VA_ARGS__)
+#endif
 
 #define R_STR_ISEMPTY(x) (!(x) || !*(x))
 #define R_STR_ISNOTEMPTY(x) ((x) && *(x))
