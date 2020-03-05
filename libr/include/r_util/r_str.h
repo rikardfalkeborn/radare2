@@ -29,7 +29,7 @@ static inline void r_str_rmch(char *s, char ch) {
 	}
 }
 
-#if 1 || R_STR_FORMAT_API
+#if 0
 
 // TODO: hold all those vars into a struct so we dont have to mess that much
 static inline char *r_strf_(char *fmt_buf, int *fmt_z, int fmt_x, int fmt_y, const char *fmt, ...) {
@@ -47,6 +47,31 @@ static inline char *r_strf_(char *fmt_buf, int *fmt_z, int fmt_x, int fmt_y, con
 // TODO: add assert when x or y is < 1
 #define r_strf_frame(x,y) const int fmt_x=x;const int fmt_y=y;int fmt_z=0;char fmt_buffer[x][y];
 #define r_strf(x,...) r_strf_(fmt_buffer[fmt_z], &fmt_z, fmt_x, fmt_y, x, __VA_ARGS__)
+#else
+
+//------------------------------------------------------------------------------------------------//
+
+typedef struct r_strf_t {
+	int idx;
+	int size;
+	char buf[0];
+} r_strf__;
+
+static inline char *r_strf_(struct r_strf_t *s, const char *fmt, ...) {
+	va_list ap;
+	va_start (ap, fmt);
+	char *p = (char*) (s->buf + s->idx);
+	vsnprintf (p, s->size - s->idx, fmt, ap);
+	s->idx += strlen (p) + 1;
+	va_end (ap);
+	return p;
+}
+
+#define RStrf(x) struct { int idx; char buf[x]; } r_strf_var = {{0}}
+#define r_strf_frame(x, y) struct r_strf_t_ { int idx; int size; char buf[x*y]; } r_strf_var = {0,x*y, {0}}
+#define r_strf(x,...) r_strf_((struct r_strf_t*)&r_strf_var, x, __VA_ARGS__)
+#define r_strf_rewird() r_strf_var.idx = 0
+
 #endif
 
 #define R_STR_ISEMPTY(x) (!(x) || !*(x))
