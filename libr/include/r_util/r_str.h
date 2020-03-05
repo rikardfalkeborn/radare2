@@ -37,11 +37,9 @@ typedef struct r_strf_t {
 } r_strf__;
 
 static inline char *r_strf_(struct r_strf_t *s, const char *fmt, ...) {
+	r_return_val_if_fail (s->idx < s->size, NULL);
 	va_list ap;
 	va_start (ap, fmt);
-	if (s->idx >= s->size) {
-		return NULL;
-	}
 	char *p = (char*) (s->buf + s->idx);
 	vsnprintf (p, s->size - s->idx, fmt, ap);
 	s->idx += strlen (p) + 1;
