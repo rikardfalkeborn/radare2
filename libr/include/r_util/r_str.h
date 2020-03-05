@@ -49,7 +49,7 @@ static inline char *r_strf_(struct r_strf_t *s, const char *fmt, ...) {
 
 #define r_strf_frame(x) struct r_strf_t_ { size_t idx; size_t size; char buf[x]; } r_strf_var = {0,x, {0}}
 #define r_strf(x,...) r_strf_((struct r_strf_t*)&r_strf_var, x, __VA_ARGS__)
-#define r_strf_rewird() r_strf_var.idx = 0
+#define r_strf_rewind() r_strf_var.idx = 0
 //  -- strf
 
 #define R_STR_ISEMPTY(x) (!(x) || !*(x))
