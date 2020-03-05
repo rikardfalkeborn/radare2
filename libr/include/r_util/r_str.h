@@ -29,37 +29,19 @@ static inline void r_str_rmch(char *s, char ch) {
 	}
 }
 
-#if 0
-
-// TODO: hold all those vars into a struct so we dont have to mess that much
-static inline char *r_strf_(char *fmt_buf, int *fmt_z, int fmt_x, int fmt_y, const char *fmt, ...) {
-	va_list ap;
-	va_start (ap, fmt);
-	vsnprintf (fmt_buf, fmt_y, fmt, ap);
-	(*fmt_z) ++;
-	if (*fmt_z > fmt_x) {
-		*fmt_z = 0;
-	}
-	va_end (ap);
-	return fmt_buf;
-}
-
-// TODO: add assert when x or y is < 1
-#define r_strf_frame(x,y) const int fmt_x=x;const int fmt_y=y;int fmt_z=0;char fmt_buffer[x][y];
-#define r_strf(x,...) r_strf_(fmt_buffer[fmt_z], &fmt_z, fmt_x, fmt_y, x, __VA_ARGS__)
-#else
-
-//------------------------------------------------------------------------------------------------//
-
+//  -- strf
 typedef struct r_strf_t {
-	int idx;
-	int size;
+	size_t idx;
+	size_t size;
 	char buf[0];
 } r_strf__;
 
 static inline char *r_strf_(struct r_strf_t *s, const char *fmt, ...) {
 	va_list ap;
 	va_start (ap, fmt);
+	if (s->idx >= s->size) {
+		return NULL;
+	}
 	char *p = (char*) (s->buf + s->idx);
 	vsnprintf (p, s->size - s->idx, fmt, ap);
 	s->idx += strlen (p) + 1;
@@ -67,12 +49,10 @@ static inline char *r_strf_(struct r_strf_t *s, const char *fmt, ...) {
 	return p;
 }
 
-#define RStrf(x) struct { int idx; char buf[x]; } r_strf_var = {{0}}
-#define r_strf_frame(x, y) struct r_strf_t_ { int idx; int size; char buf[x*y]; } r_strf_var = {0,x*y, {0}}
+#define r_strf_frame(x) struct r_strf_t_ { size_t idx; size_t size; char buf[x]; } r_strf_var = {0,x, {0}}
 #define r_strf(x,...) r_strf_((struct r_strf_t*)&r_strf_var, x, __VA_ARGS__)
 #define r_strf_rewird() r_strf_var.idx = 0
-
-#endif
+//  -- strf
 
 #define R_STR_ISEMPTY(x) (!(x) || !*(x))
 #define R_STR_ISNOTEMPTY(x) ((x) && *(x))

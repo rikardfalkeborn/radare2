@@ -4,7 +4,7 @@
 //TODO test r_str_chop_path
 
 bool test_r_str_format(void) {
-	r_strf_frame (4, 32);
+	r_strf_frame (4 * 32);
 	const char *a = r_strf ("%s.%d", "hello", 42);
 	mu_assert_streq (a, "hello.42", "error in r_strf hello.42");
 
