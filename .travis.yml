@@ -4,12 +4,6 @@ language: generic
 dist: trusty
 conditions: v1
 
-branches:
-  only:
-  - master
-  - /^release-.*$/
-  - /^prerelease-.*$/
-
 services:
   - docker
 
